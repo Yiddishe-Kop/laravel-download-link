@@ -200,7 +200,6 @@ class DownloadLinkGenerator
             'auth_only' => $this->authOnly,
             'guest_only' => $this->guestOnly,
             'expire_time' => $expireTime,
-            'user_id' => $this->userId,
         ]);
     }
 
