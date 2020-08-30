@@ -5,6 +5,7 @@ namespace Armancodes\DownloadLink\Tests;
 use Armancodes\DownloadLink\Facades\DownloadLinkGenerator;
 use Armancodes\DownloadLink\Models\DownloadLink;
 use Armancodes\DownloadLink\Models\DownloadLinkIpAddress;
+use Armancodes\DownloadLink\Models\DownloadLinkUser;
 use Exception;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Storage;
@@ -88,12 +89,12 @@ class DownloadLinkGeneratorTest extends TestCase
 
         $downloadLink = DownloadLink::first();
 
-        $ipAddresses = DownloadLinkIpAddress::where('download_link_id', $downloadLink->id)
+        $ipAddress = DownloadLinkIpAddress::where('download_link_id', $downloadLink->id)
             ->where('ip_address', $limitedIp)
             ->where('allowed', false)
             ->first();
 
-        $this->assertNotNull($ipAddresses);
+        $this->assertNotNull($ipAddress);
     }
 
     /** @test */
@@ -119,6 +120,50 @@ class DownloadLinkGeneratorTest extends TestCase
             ->count();
 
         $this->assertEquals(3, $ipAddressesCount);
+    }
+
+    /** @test */
+    public function save_user_in_database_if_given()
+    {
+        Storage::fake('public')->put('example.txt', 'This is a test file');
+
+        $this->assertNull(DownloadLinkUser::first());
+
+        $userId = 1;
+
+        DownloadLinkGenerator::disk('public')->filePath('example.txt')->for($userId)->generate();
+
+        $downloadLink = DownloadLink::first();
+
+        $user = DownloadLinkUser::where('download_link_id', $downloadLink->id)
+            ->where('user_id', $userId)
+            ->first();
+
+        $this->assertNotNull($user);
+    }
+
+    /** @test */
+    public function save_multiple_users_in_database_if_given()
+    {
+        Storage::fake('public')->put('example.txt', 'This is a test file');
+
+        $this->assertNull(DownloadLinkUser::first());
+
+        $userIds = [
+            1,
+            2,
+            3,
+        ];
+
+        DownloadLinkGenerator::disk('public')->filePath('example.txt')->for($userIds)->generate();
+
+        $downloadLink = DownloadLink::first();
+
+        $usersCount = DownloadLinkUser::where('download_link_id', $downloadLink->id)
+            ->whereIn('user_id', $userIds)
+            ->count();
+
+        $this->assertEquals(3, $usersCount);
     }
 
     /** @test */

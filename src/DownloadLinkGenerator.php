@@ -4,6 +4,7 @@ namespace Armancodes\DownloadLink;
 
 use Armancodes\DownloadLink\Models\DownloadLink;
 use Armancodes\DownloadLink\Models\DownloadLinkIpAddress;
+use Armancodes\DownloadLink\Models\DownloadLinkUser;
 use Exception;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -107,6 +108,8 @@ class DownloadLinkGenerator
 
         $this->attachIpToLink($downloadLink->id);
 
+        $this->attachUserToLink($downloadLink->id);
+
         DB::commit();
 
         return $downloadLink->link;
@@ -135,6 +138,15 @@ class DownloadLinkGenerator
         }
     }
 
+    private function attachUserToLink(int $downloadLinkId): void
+    {
+        $users = collect($this->userId);
+
+        $users->each(function ($userId, $key) use ($downloadLinkId) {
+            $this->createUserForDownloadLink($userId, $downloadLinkId);
+        });
+    }
+
     private function createIpAddressForDownloadLink($ip, int $downloadLinkId, $allowed = false)
     {
         if (! filter_var($ip, FILTER_VALIDATE_IP)) {
@@ -147,6 +159,14 @@ class DownloadLinkGenerator
             'download_link_id' => $downloadLinkId,
             'ip_address' => $ip,
             'allowed' => $allowed,
+        ]);
+    }
+
+    private function createUserForDownloadLink(int $userId, int $downloadLinkId)
+    {
+        DownloadLinkUser::create([
+            'download_link_id' => $downloadLinkId,
+            'user_id' => $userId,
         ]);
     }
 

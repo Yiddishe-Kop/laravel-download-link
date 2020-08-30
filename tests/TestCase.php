@@ -31,8 +31,10 @@ class TestCase extends Orchestra
         ]);
 
         include_once __DIR__.'/../database/migrations/create_download_links_table.php.stub';
+        include_once __DIR__.'/../database/migrations/create_download_link_users_table.php.stub';
         include_once __DIR__.'/../tests/database/migrations/create_users_table.php.stub';
         (new \CreateDownloadLinksTable())->up();
+        (new \CreateDownloadLinkUsersTable())->up();
         (new \CreateUsersTable())->up();
     }
 }

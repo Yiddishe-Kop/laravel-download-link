@@ -18,11 +18,17 @@ class DownloadLinkServiceProvider extends ServiceProvider
                 __DIR__ . '/../resources/views' => base_path('resources/views/vendor/download-link'),
             ], 'views');
 
-            $migrationFileName = 'create_download_links_table.php';
-            if (! $this->migrationFileExists($migrationFileName)) {
-                $this->publishes([
-                    __DIR__ . "/../database/migrations/{$migrationFileName}.stub" => database_path('migrations/' . date('Y_m_d_His', time()) . '_' . $migrationFileName),
-                ], 'migrations');
+            $migrationFileNames = [
+                'create_download_links_table.php',
+                'create_download_link_users.php',
+            ];
+
+            foreach ($migrationFileNames as $migrationFileName) {
+                if (! $this->migrationFileExists($migrationFileName)) {
+                    $this->publishes([
+                        __DIR__ . "/../database/migrations/{$migrationFileName}.stub" => database_path('migrations/' . date('Y_m_d_His', time()) . '_' . $migrationFileName),
+                    ], 'migrations');
+                }
             }
 
             $this->commands([

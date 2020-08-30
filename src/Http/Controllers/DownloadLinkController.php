@@ -4,6 +4,7 @@ namespace Armancodes\DownloadLink\Http\Controllers;
 
 use Armancodes\DownloadLink\Models\DownloadLink;
 use Armancodes\DownloadLink\Models\DownloadLinkIpAddress;
+use Armancodes\DownloadLink\Models\DownloadLinkUser;
 use Illuminate\Support\Facades\Storage;
 
 class DownloadLinkController
@@ -14,9 +15,9 @@ class DownloadLinkController
 
         $this->fileExists($downloadLink);
 
-        $this->isAuthorized($downloadLink);
-
         $this->isAuthenticated($downloadLink);
+
+        $this->isAuthorized($downloadLink);
 
         $this->isGuest($downloadLink);
 
@@ -34,11 +35,13 @@ class DownloadLinkController
 
     private function isAuthorized($downloadLink)
     {
-        if ($user_id = $downloadLink->user_id) {
-          abort_unless(auth()->check() && auth()->id() == $user_id, 401);
+        $downloadLinkUsers = DownloadLinkUser::where('download_link_id', $downloadLink->id)->get();
+
+        if ($downloadLinkUsers->isEmpty()) {
+            return;
         }
 
-        return true;
+        abort_if($downloadLinkUsers->where('user_id', auth()->id())->isEmpty(), 401);
     }
 
     private function isAuthenticated($downloadLink)

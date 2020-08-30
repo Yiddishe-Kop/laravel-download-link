@@ -104,6 +104,16 @@ $link = DownloadLink::disk('public')->filePath('uploads/test.txt')->allowIp('127
 $link = DownloadLink::disk('public')->filePath('uploads/test.txt')->allowIp(['127.0.0.1', '127.0.0.2', '127.0.0.3'])->generate();
 ```
 
+You may assign the link to one or more users (Only those users can use the link):
+
+```php
+$userId = 10;
+$link = DownloadLink::disk('public')->filePath('uploads/test.txt')->for($userId)->generate();
+
+$userIds = [10, 20, 30];
+$link = DownloadLink::disk('public')->filePath('uploads/test.txt')->for($userIds)->generate();
+```
+
 The default download route in the config file is "download", so if your domain is "example.com", then you should use this link to download:
 
 ```

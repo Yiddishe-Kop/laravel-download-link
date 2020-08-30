@@ -83,4 +83,30 @@ class DownloadLinkControllerTest extends TestCase
 
         $this->get(route('download-link.download-route', $link))->assertStatus(403);
     }
+
+    /** @test */
+    public function aborts_401_if_user_is_not_authorized()
+    {
+        Storage::fake('public')->put('example.txt', 'This is a test file');
+
+        $user = factory(User::class)->create();
+
+        auth()->login($user);
+
+        $userId = $user->id + rand(10, 100); // This user does not exist
+
+        $link = DownloadLinkGenerator::disk('public')->filePath('example.txt')->for($userId)->generate();
+
+        $this->get(route('download-link.download-route', $link))->assertStatus(401);
+
+        $userIds = [
+            10,
+            20,
+            30,
+        ];
+
+        $link = DownloadLinkGenerator::disk('public')->filePath('example.txt')->for($userIds)->generate();
+
+        $this->get(route('download-link.download-route', $link))->assertStatus(401);
+    }
 }
