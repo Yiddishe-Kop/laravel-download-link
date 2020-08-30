@@ -20,6 +20,7 @@ class DownloadLinkGenerator
     private $expireTime;
     private $limitIp;
     private $allowIp;
+    private $userId;
 
     const DOWNLOAD_LINK_NUMBER_OF_CHARACTERS = 64;
 
@@ -83,6 +84,13 @@ class DownloadLinkGenerator
     public function allowIp($allowIp)
     {
         $this->allowIp = $allowIp;
+
+        return $this;
+    }
+
+    public function for($userId)
+    {
+        $this->userId = $userId;
 
         return $this;
     }
@@ -172,6 +180,7 @@ class DownloadLinkGenerator
             'auth_only' => $this->authOnly,
             'guest_only' => $this->guestOnly,
             'expire_time' => $expireTime,
+            'user_id' => $this->userId,
         ]);
     }
 

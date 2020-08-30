@@ -14,6 +14,8 @@ class DownloadLinkController
 
         $this->fileExists($downloadLink);
 
+        $this->isAuthorized($downloadLink);
+
         $this->isAuthenticated($downloadLink);
 
         $this->isGuest($downloadLink);
@@ -28,6 +30,15 @@ class DownloadLinkController
     private function fileExists($downloadLink)
     {
         abort_unless(Storage::disk($downloadLink->disk)->exists($downloadLink->file_path), 404, 'File not found!');
+    }
+
+    private function isAuthorized($downloadLink)
+    {
+        if ($user_id = $downloadLink->user_id) {
+          abort_unless(auth()->check() && auth()->id() == $user_id, 401);
+        }
+
+        return true;
     }
 
     private function isAuthenticated($downloadLink)
